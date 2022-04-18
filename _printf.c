@@ -12,7 +12,7 @@ int _printf(const char *format, ...)
 	vtype_t spec[] = {
 		{'c', format_c}, {'d', format_d}, {'s', format_s}, {'i', format_d},
 		{'u', format_u}, {'%', format_perc}, {'x', format_h}, {'X', format_ch},
-		{'o', format_o}, {'b', format_b}, {'p', format_p}, {'r', format_r},
+		{'o', format_o}, {'b', format_b}, {'p', format_p},
 		{'R', format_R}, {'\0', NULL}
 	};
 	if (!format)
