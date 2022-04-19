@@ -1,67 +1,49 @@
-#include <stdio.h>
-#include <stdarg.h>
 #include "main.h"
-
 /**
-* _printf - function that produces output according to a format.
-* @format : type of format for print
-* Return: length of string
-*/
-
+  * _printf - function that prints based on format specifier
+  * @format: takes in format specifier
+  * Return: return pointer to index
+  */
 int _printf(const char *format, ...)
 {
-	va_list argumentos;
-	int i = 0, j = 0, c = 0, d = 0, a = 0, cont = 0;
-
-	op_t ops[] = {{"c", printchar}, {"s", printstring}, {"o", print_oct}, {"x", print_hex},
-		{"X", print_Hex}, {"i", printint}, {"d", printint}, {"b", bin}, {"u", print_un}, {NULL, NULL}
+	char buffer[1024];
+	int i, j = 0, a = 0, *index = &a;
+	va_list valist;
+	vtype_t spec[] = {
+		{'c', format_c}, {'d', format_d}, {'s', format_s}, {'i', format_d},
+		{'u', format_u}, {'%', format_perc}, {'x', format_h}, {'X', format_ch},
+		{'o', format_o}, {'b', format_b}, {'p', format_p}, {'r', format_r},
+		{'R', format_R}, {'\0', NULL}
 	};
-	if (format == NULL || argumentos == NULL)
+	if (!format)
 		return (-1);
-	va_start(argumentos, format);
-	while (format && format[i]) /* recorrer format */
+	va_start(valist, format);
+	for (i = 0; format[i] != '\0'; i++)
 	{
-		if (format[i] == 37 || a == 1)
+		for (; format[i] != '%' && format[i] != '\0'; *index += 1, i++)
 		{
-			if (format[i] == 37 && format[i + 1] == '\0')
-				return (-1);
-			if (a != 1)
-				i++;
-			if (format[i] != 37) /*Si el caracter siguiente no es %*/
-			{	j = 0;
-				a = 1;
-				while (ops[j].op != NULL)
-				{
-					if (format[i] == *(ops[j].op))
-					{	c = (ops[j].f)(argumentos);
-						cont = cont + c;
-						a = 2;
-						break;
-					}
-					j++;
-				}
-				if (format[i] != 32 && a != 2)
-				{	a = 0;
-					/*if (format[i + 1] != 37)*/
-						d++;
-						_putchar(37);
-					if (format[i - 1] == 32)
-					{	d++;
-						_putchar(32);
-					}
+			if (*index == 1024)
+			{	_write_buffer(buffer, index);
+				reset_buffer(buffer);
+				*index = 0;
+			}
+			buffer[*index] = format[i];
+		}
+		if (format[i] == '\0')
+			break;
+		if (format[i] == '%')
+		{	i++;
+			for (j = 0; spec[j].tp != '\0'; j++)
+			{
+				if (format[i] == spec[j].tp)
+				{	spec[j].f(valist, buffer, index);
+					break;
 				}
 			}
-			if (format[i] == 37) /*si el caracter siguiente es % avanzo 1 pos*/
-				a = 0;
 		}
-		if (a == 0)
-		{	_putchar(format[i]);
-			d++;
-		}
-		i++;
-		if (a == 2)
-			a = 0;
 	}
-	va_end(argumentos);
-	return (d + cont);
+	va_end(valist);
+	buffer[*index] = '\0';
+	_write_buffer(buffer, index);
+	return (*index);
 }
